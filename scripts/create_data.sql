@@ -1,4 +1,3 @@
--- Create the large table
 CREATE TABLE LargeData (
     ID BIGINT IDENTITY(1,1) PRIMARY KEY,
     Date DATE NOT NULL,
@@ -6,14 +5,11 @@ CREATE TABLE LargeData (
     Description NVARCHAR(255)
 );
 
--- Insert bulk data
--- Insert bulk data with random distribution across partitions
 DECLARE @i INT = 1;
 DECLARE @random INT;
 
 WHILE @i <= 200
 BEGIN
-    -- Generate a random number between 1 and 100
     SET @random = CAST(RAND() * 100 AS INT);
 
     INSERT INTO LargeData (Date, Value, Description)
@@ -24,8 +20,8 @@ BEGIN
             WHEN @random BETWEEN 51 AND 80 THEN DATEADD(DAY, CAST(RAND() * 365 AS INT), '2020-01-01') -- 30% in 2020 (partition 3)
             ELSE DATEADD(DAY, CAST(RAND() * 365 AS INT), '2021-01-01') -- 20% in 2021 (partition 4)
         END,
-        RAND() * 1000, -- Random decimal value
-        CONCAT('Record_', @i) -- Unique description
+        RAND() * 1000,
+        CONCAT('Record_', @i)
     );
 
     SET @i = @i + 1;

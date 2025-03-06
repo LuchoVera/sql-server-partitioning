@@ -59,6 +59,12 @@ En esta demo, crearemos:
    docker exec -it sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'YourStrong!Passw0rd'
    ```
 
+## Datos Importantes
+
+- El script de inicialización puede tardar varios minutos debido a la inserción de datos de prueba.
+- Asegúrese de asignar suficiente memoria al contenedor Docker (al menos 4GB recomendado).
+- Al conectarse con SQL Server se debe escribir/copiar linea a linea
+
 ## Comandos para la demostración
 
 ### 1. Verificar las Bases de Datos Existentes
@@ -90,31 +96,12 @@ GO
 
 ### 5. Verificar la Información de Particionamiento
 ```sql
-SELECT 
-    partition_number,
-    rows
+SELECT partition_number, rows
 FROM sys.partitions
 WHERE object_id = OBJECT_ID('LargeData_Partitioned');
 GO
 ```
 Este comando mostrará cómo se distribuyen los registros entre las diferentes particiones.
-
-### 6. Comparar el Rendimiento entre Tablas
-```sql
-SET STATISTICS TIME ON;
-GO
-SELECT COUNT(*) 
-FROM LargeData 
-WHERE Date BETWEEN '2019-01-01' AND '2019-12-31';
-GO
-SELECT COUNT(*) 
-FROM LargeData_Partitioned 
-WHERE Date BETWEEN '2019-01-01' AND '2019-12-31';
-GO
-SET STATISTICS TIME OFF;
-GO
-```
-Debería observar que la consulta en la tabla particionada es más rápida, especialmente porque solo necesita acceder a una partición específica en lugar de escanear toda la tabla.
 
 ## Explicación del particionamiento
 
@@ -145,9 +132,3 @@ Para eliminar también los volúmenes persistentes:
 ```bash
 docker compose down -v
 ```
-
-## Datos a tomar en cuenta
-
-- El script de inicialización puede tardar varios minutos debido a la inserción de datos de prueba.
-- Asegúrese de asignar suficiente memoria al contenedor Docker (al menos 4GB recomendado).
-- Al conectarse con SQL Server se debe escribir linea a linea
